@@ -1,27 +1,34 @@
-import React from 'react';
-import Aux from "../../../hoc/auxilliary"
+import React,{Component} from 'react';
+import Aux from "../../../hoc/Auxilliary/auxilliary"
 import Button from "../../UI/Button/Button"
 
-const orderSummary = (props) => {
-    const ingredients=Object.keys(props.ingredients)
-        .map(key=>{
-            return <li key={key}>
-                      <span style={{textTransform:"capitalize"}}>{key}</span>:{props.ingredients[key]}
-                   </li>
-        })
-    return (
-       <Aux>
-           <h3>Your Order</h3>
-           <p>A delicious burger with the following ingredients:</p>
-           <ul>
-               {ingredients}
-           </ul>
-           <p><strong>Total Price: {props.price}</strong></p>
-           <p>Continue to Checkout?</p>
-           <Button btnType="Danger" clicked={props.purchaseCancelled}>CANCEL</Button>
-           <Button btnType="Success" clicked={props.purchaseContinued}>CONTINUE</Button>
-       </Aux>
-    );
-};
+class OrderSummary extends Component {
+    //this should be functional component
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        // console.log("[ordersummary] updated")
+    }
 
-export default orderSummary;
+    render() {
+        const ingredients = Object.keys(this.props.ingredients)
+            .map(key => {
+                return <li key={key}>
+                    <span style={{textTransform: "capitalize"}}>{key}</span>:{this.props.ingredients[key]}
+                </li>
+            });
+        return (
+            <Aux>
+                <h3>Your Order</h3>
+                <p>A delicious burger with the following ingredients:</p>
+                <ul>
+                    {ingredients}
+                </ul>
+                <p><strong>Total Price: {this.props.price}</strong></p>
+                <p>Continue to Checkout?</p>
+                <Button btnType="Danger" clicked={this.props.purchaseCancelled}>CANCEL</Button>
+                <Button btnType="Success" clicked={this.props.purchaseContinued}>CONTINUE</Button>
+            </Aux>
+        )
+
+    };
+};
+export default OrderSummary;
