@@ -4,24 +4,18 @@ import Burger from "../../components/Burger/Burger";
 import BurgerControls from "../../components/Burger/BuildControls/BuildControls";
 import Modal from "../../components/UI/Modal/Modal"
 import OrderSummary from "../../components/Burger/OrderSummary/OrderSummary";
-import axios from "../../axios-orders";
 import Spinner from "../../components/UI/Spinner/Spinner";
 import withErrorHandler from "../../hoc/withErrorHandler/withErrorHandler";
-import * as actionTypes from "../../store/actions";
+import * as actions from "../../store/actions/index";
 import {connect} from "react-redux"
-
+import axios from "../../axios-orders";
 class BurgerBuilder extends Component {
     state={
         purchasing:false,
-        loading:false
     }
     componentDidMount() {
-        // axios.get("https://react-myburger-9dbac-default-rtdb.europe-west1.firebasedatabase.app/ingredients.json")
-        //     .then(response=>{
-        //         this.setState({ingredients:response.data})
-        //         console.log(response)
-        //     })
-        //     .catch(error=>{});
+         //console.log(this.props)
+        this.props.onInitIngredient();
     }
 
     updatePurchasesState=(ingredients)=>{
@@ -41,16 +35,18 @@ class BurgerBuilder extends Component {
         this.setState({purchasing:false})
     };
     purchasingContinueHandler=()=>{
-        const queryParams=[];
-        for (let i in this.state.ingredients){
-            queryParams.push(encodeURIComponent(i)+ "="+ encodeURIComponent(this.state.ingredients[i]))
-        }
-        queryParams.push("price="+this.state.totalPrice)
-        const queryString=queryParams.join("&");
-        this.props.history.push({
-            pathname:"/checkout",
-            search:"?"+queryString
-        })
+        // const queryParams=[];
+        // for (let i in this.state.ingredients){
+        //     queryParams.push(encodeURIComponent(i)+ "="+ encodeURIComponent(this.state.ingredients[i]))
+        // }
+        // queryParams.push("price="+this.state.totalPrice)
+        // const queryString=queryParams.join("&");
+        // this.props.history.push({
+        //     pathname:"/checkout",
+        //     search:"?"+queryString
+        // })
+        this.props.onInitPurchased();
+        this.props.history.push("/checkout")
     }
     render() {
         const disabledInfo={
@@ -61,6 +57,7 @@ class BurgerBuilder extends Component {
         }
         let orderSummary=null;
         let burger=<Spinner/>;
+        // let burger=this.props.error?<p>Cant loaded</p>
         if (this.props.ing){
             burger=(
                 <Aux>
@@ -78,9 +75,6 @@ class BurgerBuilder extends Component {
                 purchaseCancelled={this.purchasingCancelHandler}
                 purchaseContinued={this.purchasingContinueHandler}
                 price={this.props.price}/>
-        }
-        if (this.state.loading){
-            orderSummary=<Spinner/>;
         };
         return (
             <Aux>
@@ -95,14 +89,17 @@ class BurgerBuilder extends Component {
 }
 const mapStateToProps=(state)=>{
     return{
-        ing:state.ingredients,
-        price:state.totalPrice
+        ing:state.burgerBuilder.ingredients,
+        price:state.burgerBuilder.totalPrice,
+        error:state.burgerBuilder.error
     }
 }
 const mapDispatchToProps=dispatch=>{
     return{
-        onIngredientsAdd:(ingName)=>dispatch({type:actionTypes.ADD_INGREDIENT,ingredientName:ingName}),
-        onIngredientsRemove:(ingName)=>dispatch({type:actionTypes.REMOVE_INGREDIENT,ingredientName:ingName })
+        onIngredientsAdd:(ingName)=>dispatch(actions.addIngredient(ingName)),
+        onIngredientsRemove:(ingName)=>dispatch(actions.removeIngredient(ingName)),
+        onInitIngredient:()=>dispatch(actions.initIngredients()),
+        onInitPurchased:()=>dispatch(actions.purchaseInit())
     }
 }
 export default connect(mapStateToProps,mapDispatchToProps)(withErrorHandler(BurgerBuilder,axios));
